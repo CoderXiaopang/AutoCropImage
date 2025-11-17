@@ -40,7 +40,7 @@ async def startup_event():
         print("AutoCropper 初始化成功")
     except Exception as e:
         print(f"AutoCropper 初始化失败: {e}")
-        raise
+        autocropper = None
 
 
 class CropRequest(BaseModel):

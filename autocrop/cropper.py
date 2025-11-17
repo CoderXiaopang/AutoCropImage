@@ -1,5 +1,8 @@
 import torch
-import face_detection
+try:
+    import face_detection
+except Exception:
+    face_detection = None
 from torch.autograd import Variable
 from .model.cropping_model import build_crop_model
 from .utils import resize_image_op, color_normalization_op, enlarge_bbox, generate_bboxes, transpose_image_op
@@ -21,7 +24,7 @@ class AutoCropper(object):
         self.cuda = True if cuda and torch.cuda.is_available() else False
         self.cropper = build_crop_model(model=model, cuda=self.cuda, model_path=model_path)
         self.face_detector = None
-        if use_face_detector:
+        if use_face_detector and face_detection is not None:
             self.face_detector = face_detection.build_detector("DSFDDetector",
                                                                confidence_threshold=0.5,
                                                                nms_iou_threshold=0.3)
