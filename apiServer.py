@@ -30,12 +30,24 @@ async def startup_event():
             matches = glob.glob(os.path.join(ckpt_dir, pattern))
             return matches[0] if matches else ""
 
+        # 裁剪模型：优先本地权重
         local_model_path = _find_local_weight("mobilenetv2")
+        # 人脸模型：仅当本地存在时才启用人脸过滤，避免在线下载失败
+        torch_home = os.environ.get("TORCH_HOME", "/root/.cache/torch/hub")
+        dsfd_local = ""
+        for candidate in [
+            os.path.join(torch_home, "checkpoints", "WIDERFace_DSFD_RES152.pth"),
+            os.path.join(torch_home, "hub", "checkpoints", "WIDERFace_DSFD_RES152.pth"),
+        ]:
+            if os.path.isfile(candidate):
+                dsfd_local = candidate
+                break
+        use_face = True if dsfd_local else False
         autocropper = cropper.AutoCropper(
             model='mobilenetv2',
             cuda=True,
             model_path=local_model_path,
-            use_face_detector=True
+            use_face_detector=use_face
         )
         print("AutoCropper 初始化成功")
     except Exception as e:
