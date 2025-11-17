@@ -9,6 +9,8 @@ from autocrop import cropper
 import base64
 from typing import Optional, List
 import traceback
+import os
+import glob
 
 app = FastAPI(title="图像智能裁剪服务")
 
@@ -20,9 +22,19 @@ async def startup_event():
     """应用启动时初始化 AutoCropper"""
     global autocropper
     try:
+        def _find_local_weight(model_name: str) -> str:
+            torch_home = os.environ.get("TORCH_HOME", "/root/.cache/torch/hub")
+            ckpt_dir = os.path.join(torch_home, "checkpoints")
+            os.makedirs(ckpt_dir, exist_ok=True)
+            pattern = "mobilenet_*.pth" if model_name == "mobilenetv2" else "shufflenet_*.pth"
+            matches = glob.glob(os.path.join(ckpt_dir, pattern))
+            return matches[0] if matches else ""
+
+        local_model_path = _find_local_weight("mobilenetv2")
         autocropper = cropper.AutoCropper(
-            model='mobilenetv2', 
-            cuda=True, 
+            model='mobilenetv2',
+            cuda=True,
+            model_path=local_model_path,
             use_face_detector=True
         )
         print("AutoCropper 初始化成功")
