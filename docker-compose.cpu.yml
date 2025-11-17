@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  autocrop_cpu:
+    image: pytorch/pytorch:2.5.1-cpu
+    container_name: autocropimage-cpu
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+    ports:
+      - "6000:6006"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - TORCH_HOME=/root/.cache/torch/hub
+    command: >
+      bash -lc "mkdir -p /root/.cache/torch/hub/checkpoints && cp -n /workspace/*.pth /root/.cache/torch/hub/checkpoints/ 2>/dev/null || true && pip install --no-cache-dir -r requirements.txt && python setup.py install && uvicorn apiServer:app --host 0.0.0.0 --port 6006"
