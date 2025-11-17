@@ -12,6 +12,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - TORCH_HOME=/root/.cache/torch/hub
+      - PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
     gpus: all
     command: >
-      bash -lc "mkdir -p /root/.cache/torch/hub/checkpoints && cp -n /workspace/*.pth /root/.cache/torch/hub/checkpoints/ 2>/dev/null || true && pip install --no-cache-dir -r requirements.txt && python setup.py install && uvicorn apiServer:app --host 0.0.0.0 --port 6006"
+      bash -lc "mkdir -p /root/.cache/torch/hub/checkpoints && cp -n /workspace/*.pth /root/.cache/torch/hub/checkpoints/ 2>/dev/null || true && pip install --no-cache-dir -r requirements.txt || true && python -c 'import cv2' || pip install --no-cache-dir opencv-python-headless==4.12.0.88 && python setup.py install && uvicorn apiServer:app --host 0.0.0.0 --port 6006"

@@ -35,6 +35,8 @@
 
 说明：启动时会自动将仓库根目录下的 `*.pth` 权重复制至容器 ` /root/.cache/torch/hub/checkpoints `，并安装依赖与启动 `uvicorn`。端口映射为宿主机 `6000` → 容器 `6006`（见 `docker-compose.yml` 与 `docker-compose.cpu.yml`）。
 
+网络与 OpenCV 安装：容器中已设置 `PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple` 加速国内网络；若 `opencv-python` 安装失败，会自动回退安装 `opencv-python-headless`。
+
 ## 模型准备（必须）
 
 - 将以下权重文件移动到 ` /root/.cache/torch/hub/checkpoints `：
