@@ -2,6 +2,8 @@
 
 美学自动裁切，基于 PyTorch 与人脸检测，支持任意比例裁切。
 
+来源与致谢：本项目在 `lih627/autocrop` 的基础上改造与工程化，使用方式与示例可参考其 Demo 文档：https://github.com/lih627/autocrop?tab=readme-ov-file#Demo
+
 ## 环境要求
 
 - Python `3.12`（Ubuntu 22.04）
@@ -19,6 +21,19 @@
   - `pip install opencv-python`
 
 提示：`setup.py` 会根据 `torch.cuda.is_available()` 自动编译 CUDA/CPU 扩展，源码位于 `autocrop/model/roi_align` 与 `autocrop/model/rod_align`。
+
+## Docker 部署
+
+- GPU 版本（CUDA 12.4）：
+  - `docker compose up -d`
+  - 访问 `http://localhost:6000/crop`
+  - 容器镜像：`pytorch/pytorch:2.5.1-cuda12.4-cudnn9-devel`
+- CPU 版本：
+  - `docker compose -f docker-compose.cpu.yml up -d`
+  - 访问 `http://localhost:6000/crop`
+  - 容器镜像：`pytorch/pytorch:2.5.1-cpu`
+
+说明：启动时会自动将仓库根目录下的 `*.pth` 权重复制至容器 ` /root/.cache/torch/hub/checkpoints `，并安装依赖与启动 `uvicorn`。端口映射为宿主机 `6000` → 容器 `6006`（见 `docker-compose.yml` 与 `docker-compose.cpu.yml`）。
 
 ## 模型准备（必须）
 
