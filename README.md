@@ -35,7 +35,10 @@
 
 说明：启动时会自动将仓库根目录下的 `*.pth` 权重复制至容器 ` /root/.cache/torch/hub/checkpoints `，并安装依赖与启动 `uvicorn`。端口映射为宿主机 `6000` → 容器 `6006`（见 `docker-compose.yml` 与 `docker-compose.cpu.yml`）。
 
-网络与 OpenCV 安装：容器中已设置 `PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple` 加速国内网络；若 `opencv-python` 安装失败，会自动回退安装 `opencv-python-headless`。
+网络与依赖安装：
+- Compose 在容器内优先使用 `conda`（清华/USTC 镜像），失败回退到 `pip`（清华/阿里云/豆瓣）。
+- 若网络完全受限，可在仓库根目录创建 `wheels/` 并放入所需 `.whl` 包，Compose 会自动离线安装：`pip install --no-index --find-links /wheels -r requirements.txt`。
+- 对于大模型权重（Git LFS）：Compose 会在容器内尝试 `apt-get install git git-lfs && git lfs pull`；如受限，可在宿主机先执行 `git lfs install && git lfs pull` 后再启动。
 
 ## 模型准备（必须）
 
