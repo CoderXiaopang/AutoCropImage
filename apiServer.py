@@ -24,11 +24,23 @@ async def startup_event():
     try:
         def _find_local_weight(model_name: str) -> str:
             torch_home = os.environ.get("TORCH_HOME", "/root/.cache/torch/hub")
-            ckpt_dir = os.path.join(torch_home, "checkpoints")
-            os.makedirs(ckpt_dir, exist_ok=True)
             pattern = "mobilenet_*.pth" if model_name == "mobilenetv2" else "shufflenet_*.pth"
-            matches = glob.glob(os.path.join(ckpt_dir, pattern))
-            return matches[0] if matches else ""
+            search_dirs = [
+                os.path.join(torch_home, "checkpoints"),
+                os.path.join(torch_home, "hub", "checkpoints"),
+                "/workspace"
+            ]
+            candidates = []
+            for d in search_dirs:
+                os.makedirs(d, exist_ok=True)
+                candidates.extend(glob.glob(os.path.join(d, pattern)))
+            for p in candidates:
+                try:
+                    if os.path.getsize(p) > 1_000_000:
+                        return p
+                except Exception:
+                    pass
+            return ""
 
         # 裁剪模型：优先本地权重
         local_model_path = _find_local_weight("mobilenetv2")
